@@ -172,35 +172,34 @@ export default class MyPlugin extends Plugin {
 			
 			// Ejecutar transcripción
 			const result = await new Promise((resolve, reject) => {
-				console.log('Iniciando PythonShell...');
-				
 				const pyshell = new PythonShell('transcripcion_deepgram.py', options);
 				let transcripcionData = '';
 				
 				pyshell.on('message', function (message) {
-					console.log('Python output:', message);
-					transcripcionData += message;
+					if (message.trim().startsWith('{')) {
+						transcripcionData = message;
+					}
 				});
 
 				pyshell.on('stderr', function (stderr) {
-					console.log('Python stderr:', stderr);
+					console.error('Python stderr:', stderr);
 				});
 
-				pyshell.end(function (err: any, code: any, signal: any) {
-					console.log('Python terminó con código:', code);
-					if (err) {
-						console.error('Error en Python:', err);
-						reject(err);
+				pyshell.end(function (err, code, signal) {
+					if (err || !transcripcionData) {
+						reject(err || new Error('No se recibieron datos de transcripción'));
+						return;
 					}
 					resolve(transcripcionData);
 				});
 			});
 
-			console.log('Datos de transcripción:', result);
-			
-			// Parsear el resultado JSON
 			const transcripcionData = JSON.parse(result as string);
 			
+			if (transcripcionData.error) {
+				throw new Error(transcripcionData.error);
+			}
+
 			// Crear estructura de carpetas
 			const fecha = new Date();
 			const carpetaBase = 'Transcripciones';

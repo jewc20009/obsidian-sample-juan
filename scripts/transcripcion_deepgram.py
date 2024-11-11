@@ -117,11 +117,22 @@ def transcribir_audio(ruta_archivo):
                 }
             }
             
-            return json.dumps(transcripcion_data, ensure_ascii=False, indent=2)
+            # Solo imprimimos el JSON, nada más
+            print(json.dumps(transcripcion_data, ensure_ascii=False))
+            return True
 
     except Exception as e:
-        print(f"Error durante la transcripción: {str(e)}")
-        return None
+        print(json.dumps({
+            "error": str(e),
+            "transcripcion_completa": "",
+            "idioma_detectado": "",
+            "conversacion_formateada": "",
+            "metadata": {
+                "duracion_total": 0,
+                "num_hablantes": 0
+            }
+        }))
+        return False
 
 def main():
     # Verificar argumentos de línea de comandos
@@ -141,7 +152,7 @@ def main():
     resultado = transcribir_audio(ruta_archivo)
     
     if resultado:
-        print(resultado)
+        print("La transcripción se completó correctamente")
     else:
         print("La transcripción falló")
 
