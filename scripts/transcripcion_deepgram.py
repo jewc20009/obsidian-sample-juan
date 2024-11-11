@@ -2,9 +2,13 @@ from deepgram import DeepgramClient, PrerecordedOptions
 import sys
 import os
 import json
+import io
 
 # The API key we created in step 3
 DEEPGRAM_API_KEY = '368032d8c053c174df815f0d4949e84e02a195b4'
+
+# Configurar la codificación UTF-8 para la salida
+sys.stdout.reconfigure(encoding='utf-8')
 
 def organizar_conversacion(palabras):
     # Agrupar palabras por hablante y tiempo
@@ -107,31 +111,23 @@ def transcribir_audio(ruta_archivo):
             
             # Crear el resultado final
             transcripcion_data = {
-                'transcripcion': result.channels[0].alternatives[0].transcript,
+                'transcripcion_completa': result.channels[0].alternatives[0].transcript,
                 'idioma_detectado': result.channels[0].detected_language,
                 'conversacion_formateada': formatear_conversacion(conversacion),
                 'metadata': {
                     'duracion_total': float(conversacion[-1]['fin']) if conversacion else 0,
-                    'num_hablantes': 2,  # En este caso sabemos que son 2
-                    'archivo_original': os.path.basename(ruta_archivo)
+                    'num_hablantes': 2
                 }
             }
             
-            # Solo imprimimos el JSON, nada más
+            # Asegurarnos de que usamos UTF-8
             print(json.dumps(transcripcion_data, ensure_ascii=False))
             return True
 
     except Exception as e:
         print(json.dumps({
-            "error": str(e),
-            "transcripcion_completa": "",
-            "idioma_detectado": "",
-            "conversacion_formateada": "",
-            "metadata": {
-                "duracion_total": 0,
-                "num_hablantes": 0
-            }
-        }))
+            "error": str(e)
+        }, ensure_ascii=False))
         return False
 
 def main():

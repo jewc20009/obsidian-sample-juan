@@ -152,7 +152,8 @@ export default class MyPlugin extends Plugin {
 				pythonOptions: ['-u'],
 				scriptPath: path.join(pluginRoot, 'scripts'),
 				args: [path.join(os.tmpdir(), file.name)],
-				cwd: pluginRoot
+				cwd: pluginRoot,
+				encoding: 'utf8'
 			};
 			
 			// Preparar el archivo
